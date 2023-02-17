@@ -9,6 +9,7 @@ ExecStart=/usr/bin/containerd
 Restart=always
 Delegate=yes
 KillMode=process
+LimitNOFILE=1048576
 
 [Install]
 WantedBy=multi-user.target
