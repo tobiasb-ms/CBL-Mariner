@@ -2,18 +2,9 @@
 %global sha512hmac bash %{_sourcedir}/sha512hmac-openssl.sh
 %define uname_r %{version}-%{release}
 
-%ifarch x86_64
 %define arch x86_64
 %define archdir x86
 %define config_source %{SOURCE1}
-%endif
-
-%ifarch aarch64
-%global __provides_exclude_from %{_libdir}/debug/.build-id/
-%define arch arm64
-%define archdir arm64
-%define config_source %{SOURCE2}
-%endif
 
 Summary:        Linux Kernel
 Name:           kernel-linkedin
@@ -26,9 +17,8 @@ Group:          System Environment/Kernel
 URL:            https://github.com/microsoft/CBL-Mariner-Linux-Kernel
 Source0:        https://github.com/microsoft/CBL-Mariner-Linux-Kernel/archive/rolling-lts/mariner-2/%{version}.tar.gz#/kernel-%{version}.tar.gz
 Source1:        config
-Source2:        config_aarch64
-Source3:        sha512hmac-openssl.sh
-Source4:        cbl-mariner-ca-20211013.pem
+Source2:        sha512hmac-openssl.sh
+Source3:        cbl-mariner-ca-20211013.pem
 BuildRequires:  audit-devel
 BuildRequires:  bash
 BuildRequires:  bc
@@ -57,6 +47,7 @@ Requires:       filesystem
 Requires:       kmod
 Requires(post): coreutils
 Requires(postun): coreutils
+ExclusiveArch:  x86_64
 # When updating the config files it is important to sanitize them.
 # Steps for updating a config file:
 #  1. Extract the linux sources into a folder
@@ -155,7 +146,7 @@ make mrproper
 cp %{config_source} .config
 
 # Add CBL-Mariner cert into kernel's trusted keyring
-cp %{SOURCE4} certs/mariner.pem
+cp %{SOURCE3} certs/mariner.pem
 sed -i 's#CONFIG_SYSTEM_TRUSTED_KEYS=""#CONFIG_SYSTEM_TRUSTED_KEYS="certs/mariner.pem"#' .config
 
 cp .config current_config
@@ -183,9 +174,7 @@ make VERBOSE=1 KBUILD_BUILD_VERSION="1" KBUILD_BUILD_HOST="CBL-Mariner" ARCH=%{a
 # Compile perf, python3-perf
 make -C tools/perf PYTHON=%{python3} all
 
-%ifarch x86_64
 make -C tools turbostat cpupower
-%endif
 
 #Compile bpftool
 make -C tools/bpf/bpftool
@@ -215,14 +204,7 @@ install -vdm 755 %{buildroot}%{_prefix}/src/linux-headers-%{uname_r}
 install -vdm 755 %{buildroot}%{_libdir}/debug/lib/modules/%{uname_r}
 make INSTALL_MOD_PATH=%{buildroot} modules_install
 
-%ifarch x86_64
 install -vm 600 arch/x86/boot/bzImage %{buildroot}/boot/vmlinuz-%{uname_r}
-%endif
-
-%ifarch aarch64
-install -vm 600 arch/arm64/boot/Image %{buildroot}/boot/vmlinuz-%{uname_r}
-install -D -m 640 arch/arm64/boot/dts/freescale/imx8mq-evk.dtb %{buildroot}/boot/dtb/fsl-imx8mq-evk.dtb
-%endif
 
 # Restrict the permission on System.map-X file
 install -vm 400 System.map %{buildroot}/boot/System.map-%{uname_r}
@@ -261,19 +243,10 @@ find . -name Makefile* -o -name Kconfig* -o -name *.pl | xargs  sh -c 'cp --pare
 find arch/%{archdir}/include include scripts -type f | xargs  sh -c 'cp --parents "$@" %{buildroot}%{_prefix}/src/linux-headers-%{uname_r}' copy
 find $(find arch/%{archdir} -name include -o -name scripts -type d) -type f | xargs  sh -c 'cp --parents "$@" %{buildroot}%{_prefix}/src/linux-headers-%{uname_r}' copy
 find arch/%{archdir}/include Module.symvers include scripts -type f | xargs  sh -c 'cp --parents "$@" %{buildroot}%{_prefix}/src/linux-headers-%{uname_r}' copy
-%ifarch x86_64
-# CONFIG_STACK_VALIDATION=y requires objtool to build external modules
-install -vsm 755 tools/objtool/objtool %{buildroot}%{_prefix}/src/linux-headers-%{uname_r}/tools/objtool/
-install -vsm 755 tools/objtool/fixdep %{buildroot}%{_prefix}/src/linux-headers-%{uname_r}/tools/objtool/
-%endif
 
 cp .config %{buildroot}%{_prefix}/src/linux-headers-%{uname_r} # copy .config manually to be where it's expected to be
 ln -sf "%{_prefix}/src/linux-headers-%{uname_r}" "%{buildroot}/lib/modules/%{uname_r}/build"
 find %{buildroot}/lib/modules -name '*.ko' -print0 | xargs -0 chmod u+x
-
-%ifarch aarch64
-cp scripts/module.lds %{buildroot}%{_prefix}/src/linux-headers-%{uname_r}/scripts/module.lds
-%endif
 
 # disable (JOBS=1) parallel build to fix this issue:
 # fixdep: error opening depfile: ./.plugin_cfg80211.o.d: No such file or directory
@@ -286,10 +259,9 @@ make -C tools/perf DESTDIR=%{buildroot} prefix=%{_prefix} install-python_ext
 # Install bpftool
 make -C tools/bpf/bpftool DESTDIR=%{buildroot} prefix=%{_prefix} bash_compdir=%{_sysconfdir}/bash_completion.d/ mandir=%{_mandir} install
 
-%ifarch x86_64
 # Install turbostat cpupower
 make -C tools DESTDIR=%{buildroot} prefix=%{_prefix} bash_compdir=%{_sysconfdir}/bash_completion.d/ mandir=%{_mandir} turbostat_install cpupower_install
-%endif
+
 
 # Remove trace (symlink to perf). This file causes duplicate identical debug symbols
 rm -vf %{buildroot}%{_bindir}/trace
@@ -384,10 +356,6 @@ ln -sf linux-%{uname_r}.cfg /boot/mariner.cfg
 %{_datadir}/locale/*/LC_MESSAGES/cpupower.mo
 %{_datadir}/bash-completion/completions/cpupower
 %endif
-%ifarch aarch64
-%{_libdir}/traceevent
-%{_libdir}/libperf-jvmti.so
-%endif
 %{_bindir}
 %{_sysconfdir}/bash_completion.d/*
 %{_datadir}/perf-core/strace/groups/file
@@ -400,18 +368,14 @@ ln -sf linux-%{uname_r}.cfg /boot/mariner.cfg
 %files -n python3-perf
 %{python3_sitearch}/*
 
-%ifarch aarch64
-%files dtb
-/boot/dtb/fsl-imx8mq-evk.dtb
-%endif
-
 %files -n bpftool
 %{_sbindir}/bpftool
 %{_sysconfdir}/bash_completion.d/bpftool
 
 %changelog
 * Tue Mar 07 2023 Rachel Menge <rachelmenge@microsoft.com> - 5.15.95.1-1
-- Initial kernel-linkedin imported from kernel.spec 
+- Initial kernel-linkedin imported from kernel.spec
+- Remove aarch64
 - Below changelog is from kernel.spec 
 
 * Wed Feb 22 2023 CBL-Mariner Servicing Account <cblmargh@microsoft.com> - 5.15.94.1-1
