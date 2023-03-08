@@ -144,7 +144,7 @@ Requires:       %{name}-site = %{version}-%{release}
 Requires:       gdb
 # runtests.py suite (for hostname and killall respectively)
 Requires:       hostname
-Requires:       pmisc
+Requires:       psmisc
 Requires:       python3
 Requires:       python3-pexpect
 BuildArch:      noarch
