@@ -37,7 +37,7 @@ License:        GPLv2+
 Vendor:         Microsoft Corporation
 Distribution:   Mariner
 URL:            https://github.com/ClusterLabs/%{name}
-Source0:        https://github.com/ClusterLabs/%{name}/archive/%{commit}/%{name}-%{shortcommit}.tar.gz
+Source0:        https://github.com/ClusterLabs/%{name}/archive/%{commit}/%{name}-%{shortcommit}.tar.gz#/%{name}-%{version}.tar.gz
 # direct build process dependencies
 BuildRequires:  autoconf
 BuildRequires:  automake
