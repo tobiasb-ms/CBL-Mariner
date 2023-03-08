@@ -7980,6 +7980,16 @@
       "component": {
         "type": "other",
         "other": {
+          "name": "kernel-linkedin",
+          "version": "5.15.95.1",
+          "downloadUrl": "https://github.com/microsoft/CBL-Mariner-Linux-Kernel/archive/rolling-lts/mariner-2/5.15.95.1.tar.gz"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "other",
+        "other": {
           "name": "kernel-mshv",
           "version": "5.15.92.mshv1",
           "downloadUrl": "https://cblmarinerstorage.blob.core.windows.net/sources/core/kernel-mshv-5.15.92.mshv1.tar.gz"
