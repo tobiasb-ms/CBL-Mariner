@@ -16,7 +16,7 @@
 %endif
 
 Summary:        Linux Kernel
-Name:           kernel
+Name:           kernel-linkedin
 Version:        5.15.95.1
 Release:        1%{?dist}
 License:        GPLv2
@@ -24,7 +24,7 @@ Vendor:         Microsoft Corporation
 Distribution:   Mariner
 Group:          System Environment/Kernel
 URL:            https://github.com/microsoft/CBL-Mariner-Linux-Kernel
-Source0:        https://github.com/microsoft/CBL-Mariner-Linux-Kernel/archive/rolling-lts/mariner-2/%{version}.tar.gz#/%{name}-%{version}.tar.gz
+Source0:        https://github.com/microsoft/CBL-Mariner-Linux-Kernel/archive/rolling-lts/mariner-2/%{version}.tar.gz#/kernel-%{version}.tar.gz
 Source1:        config
 Source2:        config_aarch64
 Source3:        sha512hmac-openssl.sh
@@ -69,10 +69,10 @@ Requires(postun): coreutils
 #  9. Apply the changes listed in the log file (if any) to the config file
 #  10. Verify the rest of the config file looks ok
 # If there are significant changes to the config file, disable the config check and build the
-# kernel rpm. The final config file is included in /boot in the rpm.
+# kernel-linkedin rpm. The final config file is included in /boot in the rpm.
 
 %description
-The kernel package contains the Linux kernel.
+The kernel-linkedin package contains the Linux kernel.
 
 %package devel
 Summary:        Kernel Dev
@@ -410,8 +410,9 @@ ln -sf linux-%{uname_r}.cfg /boot/mariner.cfg
 %{_sysconfdir}/bash_completion.d/bpftool
 
 %changelog
-* Sat Feb 25 2023 CBL-Mariner Servicing Account <cblmargh@microsoft.com> - 5.15.95.1-1
-- Auto-upgrade to 5.15.95.1
+* Tue Mar 07 2023 Rachel Menge <rachelmenge@microsoft.com> - 5.15.95.1-1
+- Initial kernel-linkedin imported from kernel.spec 
+- Below changelog is from kernel.spec 
 
 * Wed Feb 22 2023 CBL-Mariner Servicing Account <cblmargh@microsoft.com> - 5.15.94.1-1
 - Auto-upgrade to 5.15.94.1
