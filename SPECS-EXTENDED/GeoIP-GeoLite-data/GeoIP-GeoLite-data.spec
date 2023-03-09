@@ -45,7 +45,7 @@ This product includes GeoLite data created by MaxMind, available from
 http://www.maxmind.com/
 
 %prep
-%autosetup -p1
+%setup -q -T -c
 
 install -p -m 644 %{SOURCE0} GeoLiteCountry.dat.gz;	gunzip GeoLiteCountry.dat
 install -p -m 644 %{SOURCE1} GeoIPv6.dat.gz;		gunzip GeoIPv6.dat

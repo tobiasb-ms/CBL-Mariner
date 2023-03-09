@@ -61,7 +61,7 @@ BuildRequires:  pkgconfig(libqb)
 ## random2range provider
 BuildRequires:  pkgconfig(glib-2.0)
 ## nametag provider
-BuildRequires:  pkgconfig(libsystemd)
+BuildRequires:  systemd-devel
 # check scriptlet (for hostname and killall respectively)
 BuildRequires:  hostname psmisc
 BuildRequires:  python3-devel
