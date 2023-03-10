@@ -2,7 +2,7 @@
 Summary:        The PyPA recommended tool for installing Python packages.
 Name:           python-pip
 Version:        19.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 License:        MIT
 Vendor:         Microsoft Corporation
 Distribution:   Mariner
@@ -57,6 +57,9 @@ python setup.py test
 %{_bindir}/*
 
 %changelog
+*   Fri Mar 10 2023 Nicolas Guibourge <nicolasg@microsoft.com> 19.2-3
+-   Test DO NOT MERGE
+
 *   Mon Apr 18 2022 Henry Beberman <henry.beberman@microsoft.com> 19.2-2
 -   Backport patch for CVE-2021-3572
 
