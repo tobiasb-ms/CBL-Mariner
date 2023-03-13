@@ -9,7 +9,7 @@
 Summary:        Linux Kernel
 Name:           kernel-linkedin
 Version:        5.15.95.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 License:        GPLv2
 Vendor:         Microsoft Corporation
 Distribution:   Mariner
@@ -373,6 +373,9 @@ ln -sf linux-%{uname_r}.cfg /boot/mariner.cfg
 %{_sysconfdir}/bash_completion.d/bpftool
 
 %changelog
+* Mon Mar 13 2023 Rachel Menge <rachelmenge@microsoft.com> - 5.15.95.1-2
+- Modify configs to more closely match LinkedIn's current config
+
 * Tue Mar 07 2023 Rachel Menge <rachelmenge@microsoft.com> - 5.15.95.1-1
 - Initial kernel-linkedin imported from kernel.spec
 - Remove aarch64
