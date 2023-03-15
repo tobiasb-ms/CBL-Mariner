@@ -375,6 +375,7 @@ ln -sf linux-%{uname_r}.cfg /boot/mariner.cfg
 %changelog
 * Wed Mar 15 2023 Rachel Menge <rachelmenge@microsoft.com> - 5.15.95.1-3
 - Update configs for Mariner's gcc
+- Add back the signing_key.pem
 
 * Mon Mar 13 2023 Rachel Menge <rachelmenge@microsoft.com> - 5.15.95.1-2
 - Modify configs to more closely match LinkedIn's current config
