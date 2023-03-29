@@ -51,7 +51,7 @@ python3 configure.py \
 rm -fr %{buildroot}%{_libdir}/dtrace/  # No systemtap support.
 install -m 755 -d %{buildroot}%{_libdir}/node_modules/
 install -m 755 -d %{buildroot}%{_datadir}/%{name}
-
+find ${buildroot} -name "redirect.js"
 # Remove junk files from node_modules/ - we should probably take care of
 # this in the installer.
 for FILE in .gitmodules .gitignore .npmignore .travis.yml \*.py[co]; do
