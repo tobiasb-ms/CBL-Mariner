@@ -382,6 +382,9 @@ func PopulateInstallRoot(installChroot *safechroot.Chroot, packagesToInstall []s
 	const (
 		filesystemPkg = "filesystem"
 	)
+	var (
+		shadow            []string
+	)
 
 	defer stopGPGAgent(installChroot)
 
