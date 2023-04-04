@@ -462,6 +462,16 @@ func PopulateInstallRoot(installChroot *safechroot.Chroot, packagesToInstall []s
 		}
 	}
 
+	shadow, err = file.ReadLines(shadowFile)
+	if err != nil {
+		logger.Log.Errorf("TOBIASB: PopulateInstallRoot: Failed to open shadow file.");
+	} else {
+		logger.Log.Debugf("TOBIASB: PopulateInstallRoot: shadow file: %s", shadow);
+		for n, entry := range shadow {
+			logger.Log.Debugf("TOBIASB: PopulateInstallRoot: shadow file entry %d: %s", n, entry);
+		}
+	}
+
 	// Add users
 	err = addUsers(installChroot, config.Users)
 	if err != nil {
