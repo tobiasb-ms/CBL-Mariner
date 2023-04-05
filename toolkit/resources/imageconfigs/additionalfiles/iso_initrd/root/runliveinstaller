@@ -39,8 +39,8 @@ LABEL=CDROM
 
 function retry {
     local retry=0
-    local limit=10
-    local sleep_seconds=15
+    local limit=5
+    local sleep_seconds=3
     while [ $retry -lt $limit ]
     do
         "$@" && break
@@ -73,7 +73,7 @@ elif grep -q "image-config" $CMDLINE; then
     # Enable all scripts under config directory to be executable
     find "$CONFIG_ROOT"/ -type f -iname "*.sh" -exec chmod a+x {} \;
 else
-    echo Attempt to mount the ISO root
+    echo Attempt to mount the ISO root with shortened limit
     # It is possible that the partition isn't ready to be mounted when this script
     # is first run. So use a retry loop.
     retry mount -L $LABEL -o ro $ISO_ROOT
