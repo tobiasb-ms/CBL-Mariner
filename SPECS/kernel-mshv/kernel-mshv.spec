@@ -236,6 +236,9 @@ ln -sf linux-%{uname_r}.cfg /boot/mariner.cfg
 %{_includedir}/perf/perf_dlfilter.h
 
 %changelog
+* Wed Apr 12 2023 Cameron Baird <cameronbaird@microsoft.com> - 5.15.98.mshv1-4
+- Add back config
+
 * Thu Mar 30 2023 Saul Paredes <saulparedes@microsoft.com> - 5.15.98.mshv1-3
 - Add back config
 
