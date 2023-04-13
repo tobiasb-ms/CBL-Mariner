@@ -7,7 +7,7 @@
 
 Name:         kata-containers-cc
 Version:      0.1.0
-Release:      10%{?dist}
+Release:      11%{?dist}
 Summary:      Kata Confidential Containers
 License:      ASL 2.0
 Vendor:       Microsoft Corporation
@@ -21,6 +21,7 @@ Source4:      containerd-for-cc-override.conf
 Source5:      runtime.yaml
 Source6:      pause-image.sh
 Source7:      pause-image.service
+Source8:      %{name}-%{version}-cargo.tar.gz
 
 ExclusiveArch: x86_64
 
@@ -36,7 +37,6 @@ BuildRequires:  cargo
 BuildRequires:  rust
 BuildRequires:  git
 BuildRequires:  sudo
-BuildRequires:  curl
 BuildRequires:  openssl-devel
 BuildRequires:  iptables-devel
 BuildRequires:  wget
@@ -59,6 +59,9 @@ Kata Confidential Containers.
 
 %prep
 %autosetup -p1 -n %{name}-%{version}
+pushd %{_builddir}/%{name}-%{version}
+tar -xf %{SOURCE8}
+popd
 
 %build
 export PATH=$PATH:"$(pwd)/go/bin"
@@ -86,7 +89,7 @@ pushd %{_builddir}/%{name}-%{version}/src/tarfs
 make KDIR=/usr/src/linux-headers-${KERNEL_VER}
 make KDIR=/usr/src/linux-headers-${KERNEL_VER} install
 popd
-%define KERNEL_MODULES_DIR %{_builddir}/%{name}-%{version}/src/tarfs/_install/lib/modules/${KERNEL_MODULE_VER}
+%global KERNEL_MODULES_DIR %{_builddir}/%{name}-%{version}/src/tarfs/_install/lib/modules/${KERNEL_MODULE_VER}
 
 # Agent
 pushd %{_builddir}/%{name}-%{version}/src/agent
@@ -96,30 +99,6 @@ popd
 # UVM rootfs
 pushd %{_builddir}/%{name}-%{version}/tools/osbuilder
 gcc -O2 ./image-builder/nsdax.gpl.c -o ./image-builder/nsdax
-
-sudo -E PATH=$PATH \
- GOPATH="$(sudo readlink -f %{_builddir}/%{name}-%{version}/src/runtime/go)" \
- AGENT_SOURCE_BIN="$(sudo readlink -f %{_builddir}/%{name}-%{version}/src/agent/target/x86_64-unknown-linux-gnu/debug/kata-agent)" \
- make DISTRO=mariner KERNEL_MODULES_DIR=%{KERNEL_MODULES_DIR} rootfs
-
-rootfs_path="%{_builddir}/%{name}-%{version}/tools/osbuilder/mariner_rootfs"
-
-depmod -a -b ${rootfs_path} ${KERNEL_MODULE_VER}
-
-# Install agent service
-pushd %{_builddir}/%{name}-%{version}/src/agent
-sudo -E PATH=$PATH make install-services DESTDIR="${rootfs_path}"
-popd
-
-# The previous command doesn't include kata-agent.service and
-# kata-containers.target in the rootfs, for an unknown reason.
-sudo cp %{_builddir}/%{name}-%{version}/src/agent/kata-containers.target  mariner_rootfs/usr/lib/systemd/system/
-sudo cp %{_builddir}/%{name}-%{version}/src/agent/kata-agent.service.in   mariner_rootfs/usr/lib/systemd/system/kata-agent.service
-sudo sed -i 's/@BINDIR@\/@AGENT_NAME@/\/usr\/bin\/kata-agent/g' mariner_rootfs/usr/lib/systemd/system/kata-agent.service
-
-# The UVM rootfs will be used to build an img file at the first Host boot.
-tar cf mariner-uvm-rootfs.tar.gz mariner_rootfs
-
 popd
 
 %install
@@ -128,6 +107,16 @@ popd
 %define coco_bin      %{coco_path}/bin
 %define defaults_kata %{coco_path}/share/defaults/kata-containers
 %define share_kata    %{coco_path}/share/kata-containers
+
+# Kernel modules
+mkdir -p %{buildroot}%{build_path}
+cp -aR %{KERNEL_MODULES_DIR} %{buildroot}%{build_path}
+
+# osbuilder
+pushd %{_builddir}/%{name}-%{version}/tools/osbuilder
+rm rootfs-builder/.gitignore
+cp -aR rootfs-builder   %{buildroot}%{build_path}
+popd
 
 # Symlinks for cc binaries
 mkdir -p %{buildroot}%{coco_bin}
@@ -139,6 +128,14 @@ ln -sf /usr/libexec/virtiofsd %{buildroot}/%{coco_path}/libexec/virtiofsd
 install -D -m 0644 %{SOURCE4} %{buildroot}/etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf
 
 find %{buildroot}/etc
+
+# Agent
+pushd %{_builddir}/%{name}-%{version}/src/agent
+install -D -m 0755 target/x86_64-unknown-linux-gnu/release/kata-agent %{buildroot}%{coco_bin}/kata-agent
+install -D -m 0755 kata-containers.target %{buildroot}%{build_path}/kata-containers.target
+install -D -m 0755 kata-agent.service.in  %{buildroot}%{build_path}/kata-agent.service.in
+install -D -m 0755 coco-opa.service       %{buildroot}%{build_path}/coco-opa.service
+popd 
 
 # Runtime
 pushd %{_builddir}/%{name}-%{version}/src/runtime
@@ -157,14 +154,12 @@ pushd %{_builddir}/%{name}-%{version}/src/tardev-snapshotter/
 sed -i -e 's/containerd.service/kubelet.service/g' tardev-snapshotter.service
 install -m 0644 -D -t %{buildroot}%{_unitdir} tardev-snapshotter.service
 install -D -m 0755 target/release/tardev-snapshotter  %{buildroot}/usr/bin/tardev-snapshotter
-
 popd
 
 # The UVM rootfs will be used to build an img file at the first host boot.
 install -D -m 0755 %{_builddir}/%{name}-%{version}/tools/osbuilder/scripts/lib.sh                   %{buildroot}/%{share_kata}/scripts/lib.sh
 install -D -m 0755 %{_builddir}/%{name}-%{version}/tools/osbuilder/image-builder/image_builder.sh   %{buildroot}/%{share_kata}/scripts/image_builder.sh
 install -D -m 0755 %{_builddir}/%{name}-%{version}/tools/osbuilder/image-builder/nsdax              %{buildroot}/%{share_kata}/scripts/nsdax
-install -D -m 0644 %{_builddir}/%{name}-%{version}/tools/osbuilder/mariner-uvm-rootfs.tar.gz        %{buildroot}/%{build_path}/mariner-uvm-rootfs.tar.gz
 
 install -D -m 0755 %{SOURCE2} %{buildroot}/%{build_path}/mariner-coco-build-uvm-image.sh
 install -D -m 0755 %{SOURCE6} %{buildroot}/%{build_path}/pause-image.sh
@@ -187,9 +182,25 @@ install -m 0644 -D -t %{buildroot}%{_unitdir} %{SOURCE7}
 
 %files
 %{build_path}/pause-image.sh
-%{build_path}/mariner-uvm-rootfs.tar.gz
 %{build_path}/mariner-coco-build-uvm-image.sh
 
+%{build_path}/kata-containers.target
+%{build_path}/kata-agent.service.in
+%{build_path}/coco-opa.service
+
+%dir %{build_path}/rootfs-builder
+%dir %{build_path}/modules
+%{build_path}/rootfs-builder/*
+%{build_path}/modules/*
+
+# Remove some scripts we don't use
+%exclude %{build_path}/rootfs-builder/alpine
+%exclude %{build_path}/rootfs-builder/centos
+%exclude %{build_path}/rootfs-builder/clearlinux
+%exclude %{build_path}/rootfs-builder/debian
+%exclude %{build_path}/rootfs-builder/template
+%exclude %{build_path}/rootfs-builder/ubuntu
+   
 %{share_kata}/scripts/nsdax
 %{share_kata}/scripts/image_builder.sh
 %{share_kata}/scripts/lib.sh
@@ -199,6 +210,7 @@ install -m 0644 -D -t %{buildroot}%{_unitdir} %{SOURCE7}
 %{coco_bin}/kata-collect-data.sh
 %{coco_bin}/kata-monitor
 %{coco_bin}/kata-runtime
+%{coco_bin}/kata-agent
 
 %{defaults_kata}/configuration*.toml
 %{coco_path}/libexec/virtiofsd
