@@ -97,6 +97,7 @@ if [[ ! -f "$UNATTENDED_CONFIG_FILE" ]]; then
     systemctl enable espeakup
     systemctl start espeakup
 fi
+/bin/bash
 
 cd /installer
 
