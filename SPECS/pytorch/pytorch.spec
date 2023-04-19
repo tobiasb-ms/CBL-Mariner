@@ -1,8 +1,9 @@
 %global _empty_manifest_terminate_build 0
+%global debug_package %{nil}
 Summary:        Tensors and Dynamic neural networks in Python with strong GPU acceleration.
 Name:           pytorch
 Version:        2.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 License:        BSD-3-Clause
 Vendor:         Microsoft Corporation
 Distribution:   Mariner
@@ -76,6 +77,9 @@ cp -arf docs %{buildroot}/%{_pkgdocdir}
 %{_docdir}/*
 
 %changelog
+* Tue Apr 18 2023 Andrew Phelps <anphel@microsoft.com> - 2.0.0-2
+- Disable very large debuginfo package
+
 * Mon Apr 03 2023 Riken Maharjan <rmaharjan@microsoft.com> - 2.0.0-1
 - upgrade to 2.0.0
 
