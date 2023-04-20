@@ -422,6 +422,7 @@ ln -sf linux-%{uname_r}.cfg /boot/mariner.cfg
 %changelog
 * Tue May 02 2023 Rachel Menge <rachelmenge@microsoft.com> - 5.15.107.1-1000
 - Add crtical configs from Allen's LI kernel
+- Add DRM and HWMON configs
 
 * Wed Apr 19 2023 Rachel Menge <rachelmenge@microsoft.com> - 5.15.107.1-2
 - Disable rpm's debuginfo defaults which regenerate build-ids
