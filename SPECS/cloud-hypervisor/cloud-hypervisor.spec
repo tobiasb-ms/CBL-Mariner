@@ -78,7 +78,7 @@ mkdir -p .cargo
 cp %{SOURCE2} .cargo/
 # Apply CVE-2023-28448.patch to vendor/versionize
 %patch0 -p1
-rm -rf vendor/libz-sys
+rm -rf vendor/libz-sys/src/zlib
 %endif
 
 %install
