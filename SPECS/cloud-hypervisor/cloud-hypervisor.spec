@@ -29,6 +29,7 @@ BuildRequires:  gcc
 BuildRequires:  git
 BuildRequires:  glibc-devel
 BuildRequires:  openssl-devel
+BuildRequires:  zlib-devel
 
 %if ! 0%{?using_rustup}
 BuildRequires:  rust >= 1.60.0
@@ -39,6 +40,7 @@ Requires: bash
 Requires: glibc
 Requires: libgcc
 Requires: libcap
+Requires: zlib
 
 ExclusiveArch:  x86_64
 
