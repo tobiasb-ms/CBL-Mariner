@@ -65,6 +65,8 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 	for _, arch := range pkgArches {
 		var rpmFiles []string
 
+		logger.Log.Warnf("OrganizePackagesByArch: %s", rpmFiles)
+
 		err = os.MkdirAll(filepath.Join(repoDir, arch), os.ModePerm)
 		if err != nil {
 
@@ -76,13 +78,13 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 			// logger.Log.Warnf("Source Packages")
 			// logger.Log.Warnf(stdout2)
 			
-			return
+			continue //return
 		}
 
 		rpmSearch := filepath.Join(srcDir, fmt.Sprintf("*.%s.rpm", arch))
 		rpmFiles, err = filepath.Glob(rpmSearch)
 		if err != nil {
-			return
+			continue //return
 		}
 
 		for _, rpmFile := range rpmFiles {
@@ -103,7 +105,7 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 			err = file.Move(rpmFile, dstFile)
 			if err != nil {
 				logger.Log.Warnf("Unable to move (%s) to (%s)", rpmFile, dstFile)
-				return
+				continue //return
 			}
 		}
 
