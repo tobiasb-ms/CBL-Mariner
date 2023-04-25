@@ -67,6 +67,15 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 
 		err = os.MkdirAll(filepath.Join(repoDir, arch), os.ModePerm)
 		if err != nil {
+
+			stdout2, stderr2, err2 := shell.Execute("find", "/ -type d")
+			logger.Log.Warnf("Directory Tree")
+			logger.Log.Warnf(stdout2)
+
+			stdout2, stderr2, err2 = shell.Execute("find", srcDir)
+			logger.Log.Warnf("Source Packages")
+			logger.Log.Warnf(stdout2)
+			
 			return
 		}
 
