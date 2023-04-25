@@ -50,6 +50,7 @@ func CreateRepo(repoDir string) (err error) {
 func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 	const noArch = "noarch"
 
+	// "Organizing RPM packages from (/temp/DockerStage/docker-chroot-10/outputrpms) to (/temp/DockerStage/docker-chroot-10/upstream-cached-rpms)"
 	logger.Log.Debugf("Organizing RPM packages from (%s) to (%s)", srcDir, repoDir)
 
 	stdout, stderr, err := shell.Execute("uname", "-m")
@@ -65,26 +66,25 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 	for _, arch := range pkgArches {
 		var rpmFiles []string
 
-		logger.Log.Warnf("OrganizePackagesByArch: %s", rpmFiles)
+		logger.Log.Warnf("Creating directory '%s'", repoDir)
+		err = os.MkdirAll(repoDir, os.ModePerm)
+		if err != nil {
+			logger.Log.Errorf("Error creating directory: '%s' '%s'", repoDir, err)
+			return
+		}
 
+		logger.Log.Warnf("Creating directory '%s'", filepath.Join(repoDir, arch))
 		err = os.MkdirAll(filepath.Join(repoDir, arch), os.ModePerm)
 		if err != nil {
-
-			// stdout2, stderr2, err2 := shell.Execute("find", "/ -type d")
-			// logger.Log.Warnf("Directory Tree")
-			// logger.Log.Warnf(stdout2)
-
-			// stdout2, stderr2, err2 = shell.Execute("find", srcDir)
-			// logger.Log.Warnf("Source Packages")
-			// logger.Log.Warnf(stdout2)
-			
-			continue //return
+			logger.Log.Errorf("Error creating directory: '%s' '%s'", filepath.Join(repoDir, arch), err)
+			return
 		}
 
 		rpmSearch := filepath.Join(srcDir, fmt.Sprintf("*.%s.rpm", arch))
 		rpmFiles, err = filepath.Glob(rpmSearch)
 		if err != nil {
-			continue //return
+			logger.Log.Errorf("Unabled to find rpms with rpmSearch '%s' '%s'", rpmSearch, err)
+			return
 		}
 
 		for _, rpmFile := range rpmFiles {
@@ -105,7 +105,7 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 			err = file.Move(rpmFile, dstFile)
 			if err != nil {
 				logger.Log.Warnf("Unable to move (%s) to (%s)", rpmFile, dstFile)
-				continue //return
+				return
 			}
 		}
 
@@ -118,7 +118,7 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 		logger.Log.Debugf("Failed to locate any downloaded packages. All packages are assumed to be locally available.")
 	}
 
-	logger.Log.Warnf("Override err")
-	err = nil
+	logger.Log.Warnf("OrganizePackagesByArch: return err '%s'", err)
+	//err = nil
 	return
 }
