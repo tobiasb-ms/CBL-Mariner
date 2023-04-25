@@ -83,7 +83,7 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 		rpmSearch := filepath.Join(srcDir, fmt.Sprintf("*.%s.rpm", arch))
 		rpmFiles, err = filepath.Glob(rpmSearch)
 		if err != nil {
-			logger.Log.Errorf("Unabled to find rpms with rpmSearch '%s' '%s'", rpmSearch, err)
+			logger.Log.Errorf("Unable to find rpms with rpmSearch '%s' '%s'", rpmSearch, err)
 			return
 		}
 
@@ -101,11 +101,16 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 					logger.Log.Warnf("---- calculated == '%s'", calculatedRpmFilename)
 				}
 			}
-			dstFile := filepath.Join(repoDir, arch, filepath.Base(rpmFile))
-			err = file.Move(rpmFile, dstFile)
-			if err != nil {
-				logger.Log.Warnf("Unable to move (%s) to (%s)", rpmFile, dstFile)
-				return
+			if filepath.Base(rpmFile) == "" {
+				logger.Log.Warnf("!!!!! Detected empty basename for '%s'", rpmFile)
+			} else {
+				dstFile := filepath.Join(repoDir, arch, filepath.Base(rpmFile))
+				logger.Log.Debugf("Moving file (%s) to (%s)", rpmFile, dstFile)
+				err = file.Move(rpmFile, dstFile)
+				if err != nil {
+					logger.Log.Warnf("Unable to move (%s) to (%s)", rpmFile, dstFile)
+					return
+				}
 			}
 		}
 
