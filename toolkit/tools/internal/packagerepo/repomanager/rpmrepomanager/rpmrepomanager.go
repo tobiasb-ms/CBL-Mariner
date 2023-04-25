@@ -118,5 +118,7 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 		logger.Log.Debugf("Failed to locate any downloaded packages. All packages are assumed to be locally available.")
 	}
 
+	logger.Log.Warnf("Override err")
+	err = nil
 	return
 }
