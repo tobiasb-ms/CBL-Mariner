@@ -66,18 +66,12 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 	for _, arch := range pkgArches {
 		var rpmFiles []string
 
-		logger.Log.Warnf("Creating directory '%s'", repoDir)
-		err = os.MkdirAll(repoDir, os.ModePerm)
-		if err != nil {
-			logger.Log.Errorf("Error creating directory: '%s' '%s'", repoDir, err)
-			return
-		}
-
-		logger.Log.Warnf("Creating directory '%s'", filepath.Join(repoDir, arch))
 		err = os.MkdirAll(filepath.Join(repoDir, arch), os.ModePerm)
 		if err != nil {
 			logger.Log.Errorf("Error creating directory: '%s' '%s'", filepath.Join(repoDir, arch), err)
-			return
+			// consider this a non-fatal error and continue
+			err = nil
+			continue
 		}
 
 		rpmSearch := filepath.Join(srcDir, fmt.Sprintf("*.%s.rpm", arch))
@@ -101,16 +95,12 @@ func OrganizePackagesByArch(srcDir, repoDir string) (err error) {
 					logger.Log.Warnf("---- calculated == '%s'", calculatedRpmFilename)
 				}
 			}
-			if filepath.Base(rpmFile) == "" {
-				logger.Log.Warnf("!!!!! Detected empty basename for '%s'", rpmFile)
-			} else {
-				dstFile := filepath.Join(repoDir, arch, filepath.Base(rpmFile))
-				logger.Log.Debugf("Moving file (%s) to (%s)", rpmFile, dstFile)
-				err = file.Move(rpmFile, dstFile)
-				if err != nil {
-					logger.Log.Warnf("Unable to move (%s) to (%s)", rpmFile, dstFile)
-					return
-				}
+			dstFile := filepath.Join(repoDir, arch, filepath.Base(rpmFile))
+			logger.Log.Debugf("Moving file (%s) to (%s)", rpmFile, dstFile)
+			err = file.Move(rpmFile, dstFile)
+			if err != nil {
+				logger.Log.Warnf("Unable to move (%s) to (%s)", rpmFile, dstFile)
+				return
 			}
 		}
 
