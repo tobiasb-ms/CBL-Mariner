@@ -37,7 +37,7 @@ Report Language.
 sed -i 's/-fstack-protector/&-all/' Configure
 
 %build
-export BUILD_ZLIB=False
+export BUILD_ZLIB=True
 export BUILD_BZIP2=0
 CFLAGS="%{_optflags}"
 
