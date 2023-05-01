@@ -4,11 +4,11 @@
 
 Name:           chrony
 Version:        4.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        An NTP client/server
 Vendor:         Microsoft Corporation
 Distribution:   Mariner
-License:        GPLv2
+License:        GPL-2.0-only
 URL:            https://chrony.tuxfamily.org
 Source0:        https://download.tuxfamily.org/%{name}/%{name}-%{version}.tar.gz
 # Source 1-2 left for a possible GPG check
@@ -18,11 +18,14 @@ Source5:        chrony-dnssrv@.service
 Source6:        chrony-dnssrv@.timer
 # simulator for test suite
 Source10:       https://github.com/mlichvar/clknetsim/archive/%{clknetsim_ver}/clknetsim-%{clknetsim_ver}.tar.gz
-
 # add NTP servers from DHCP when starting service
-Patch2:         chrony-service-helper.patch
-# fix test 099-scfilter with glibc 2.34
-Patch3:         sys-linux-testfix.patch
+Patch0:         chrony-service-helper.patch
+# When glibc is updated, new syscall wrappers can be implemented that 
+# aren't accounted for by existing seccomp filters.
+# This issue can manifest as a failure in test 099-scfilter.
+# Add upstream patches to 
+Patch1:         seccomp-fix-glibc-2.34.patch
+Patch2:         seccomp-fix-glibc-2.35.patch
 
 BuildRequires:  bison
 BuildRequires:  gcc
@@ -59,10 +62,7 @@ can also operate as an NTPv4 (RFC 5905) server and peer to provide a time
 service to other computers in the network.
 
 %prep
-
-%setup -q -n %{name}-%{version} -a 10
-%patch2 -p1 -b .service-helper
-%patch3 -p1
+%autosetup -p1 -n %{name}-%{version} -a 10
 
 # review changes in packaged configuration files and scripts
 md5sum -c <<-EOF | (! grep -v 'OK$')
@@ -206,6 +206,11 @@ systemctl start chronyd.service
 %dir %attr(-,chrony,chrony) %{_localstatedir}/log/chrony
 
 %changelog
+* Mon May 01 2023 Olivia Crain <oliviacrain@microsoft.com> - 4.1-2
+- Add upstream patch to fix seccomp filtering with glibc 2.35
+- Renumber patches and apply with %%autosetup
+- Use SPDX license expression in license tag
+
 * Mon Mar 07 2022 Andrew Phelps <anphel@microsoft.com> - 4.1-1
 - Upgrade to version 4.1
 
