@@ -10,8 +10,8 @@ Distribution:   Mariner
 URL:            https://fluentbit.io
 #Source0:       https://github.com/fluent/%{name}/archive/v%{version}.tar.gz
 Source0:        %{name}-%{version}.tar.gz
-Patch0:    CVE-2021-46878.patch
-Patch0:    CVE-2021-46879.patch
+Patch0:         CVE-2021-46878.patch
+Patch1:         CVE-2021-46879.patch
 
 BuildRequires:  cmake
 BuildRequires:  systemd-devel
@@ -28,9 +28,7 @@ Requires:       %{name} = %{version}
 Development files for %{name}
 
 %prep
-%setup -q
-%patch0 -p1
-%patch0 -p1
+%autosetup -p1
 
 %build
 cd build
