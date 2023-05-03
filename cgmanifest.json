@@ -13394,7 +13394,7 @@
         "other": {
           "name": "msft-golang",
           "version": "1.19.9",
-          "downloadUrl": "https://github.com/microsoft/go/releases/download/v1.19.9-1/go.20230502.3.src.tar.gz"
+          "downloadUrl": "https://github.com/microsoft/go/releases/download/v1.19.9-1/go.20230502.4.src.tar.gz"
         }
       }
     },
