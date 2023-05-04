@@ -1,7 +1,7 @@
 Summary:        Programs for handling passwords in a secure way
 Name:           shadow-utils
 Version:        4.9
-Release:        8%{?dist}
+Release:        9%{?dist}
 License:        BSD
 Vendor:         Microsoft Corporation
 Distribution:   Mariner
@@ -23,6 +23,7 @@ Source12:       useradd-default
 Source13:       login-defs
 Patch0:         chkname-allowcase.patch
 Patch1:         libsubid-pam-link.patch
+Patch2:    CVE-2023-29383.patch
 BuildRequires:  %{_bindir}/xsltproc
 BuildRequires:  autoconf
 BuildRequires:  automake
@@ -71,6 +72,7 @@ Libraries and headers for libsubid
 %setup -q -n shadow-%{version}
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 autoreconf -fiv
 
@@ -194,6 +196,9 @@ find %{buildroot} -type f -name "*.la" -delete -print
 %{_libdir}/libsubid.so
 
 %changelog
+* Thu May 04 2023 CBL-Mariner Servicing Account <cblmargh@microsoft.com> - 4.9-9
+- Add patch for CVE-2023-29383
+
 * Fri Apr 22 2022 Olivia Crain <oliviacrain@microsoft.com> - 4.9-8
 - Add explicit requirement on libpwquality (used in system-password pam file)
 
