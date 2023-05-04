@@ -1,13 +1,14 @@
 Summary:        Enable python source code refactoring through AST modifications
 Name:           python-google-pasta
 Version:        0.2.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 License:        Apache-2.0
 Vendor:         Microsoft Corporation
 Distribution:   Mariner
 Group:          Development/Languages/Python
 URL:            https://github.com/google/pasta/
 Source0:        https://github.com/google/pasta/archive/v%{version}.tar.gz#/google-pasta-%{version}.tar.gz
+Patch0:         py39-test-data.patch
 BuildArch:      noarch
 BuildRequires:  python3-devel
 
@@ -42,5 +43,8 @@ python3 setup.py test
 
 
 %changelog
+* Thu May 04 2023 Olivia Crain <oliviacrain@microsoft.com> - 0.2.0-2
+- Add upstream patch with golden test data for Python 3.9
+
 * Wed Oct 26 2022 Riken Maharjan <rmaharjan@microsoft.com> - 0.2.0-1
 - Original version for CBL-Mariner. License Verified.
