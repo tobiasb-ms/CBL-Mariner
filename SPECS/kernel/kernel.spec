@@ -28,7 +28,7 @@
 Summary:        Linux Kernel
 Name:           kernel
 Version:        5.15.110.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 License:        GPLv2
 Vendor:         Microsoft Corporation
 Distribution:   Mariner
@@ -130,7 +130,6 @@ This package contains the Linux kernel doc files
 %package tools
 Summary:        This package contains the 'perf' performance analysis tools for Linux kernel
 Group:          System/Tools
-Requires:       %{name} = %{version}-%{release}
 Requires:       audit
 
 %description tools
@@ -420,6 +419,9 @@ ln -sf linux-%{uname_r}.cfg /boot/mariner.cfg
 %{_sysconfdir}/bash_completion.d/bpftool
 
 %changelog
+* Wed May 10 2023 Rachel Menge <rachelmenge@microsoft.com> - 5.15.110.1-4
+- Remove requires for name-version for kernel-tools
+
 * Thu May 04 2023 Rachel Menge <rachelmenge@microsoft.com> - 5.15.110.1-3
 - Enable HWMON support, RAS_CEC, and BLK_DEV_IO_TRACE
 
